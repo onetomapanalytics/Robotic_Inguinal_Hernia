@@ -1,0 +1,57 @@
+
+Step 3- Further Cleaning the data, some cleaning steps (following code is for the year 2018 data file)
+
+use "file path"
+
+drop SERV_LOC EVALCODE1 EVALCODE2 EVALCODE3 EVALCODE4 EVALCODE5 
+
+drop ECMORB1 ECMORB2 ECMORB3 
+
+drop x_OTHCPT1 x_OTHCPT2 x_OTHCPT3 x_OTHCPT4 x_OTHCPT5 x_OTHCPT6 x_OTHCPT7 x_OTHCPT8 x_OTHCPT9 x_OTHCPT10 x_OTHCPT11 x_OTHCPT12 x_OTHCPT13 x_OTHCPT14 x_OTHCPT15 x_OTHCPT16 x_OTHCPT17 x_OTHCPT18 x_OTHCPT19 x_OTHCPT20 x_OTHCPT21 x_OTHCPT22 x_OTHCPT23 x_OTHCPT24 x_OTHCPT25 x_OTHCPT26 x_OTHCPT27 x_OTHCPT28 x_OTHCPT29 x_OTHCPT30
+
+drop REASON_CDE
+drop PTCOUNTY PTSTATE PTCOUNTRY HR_ARRIVAL EDHR_DISCH
+
+drop  _merge keepvar 
+
+*drop  _merge keepvar FACL_COUNTY  FAC_REGION PRO_CODE QTR
+
+drop x_PRINDIAG x_OTHDIAG1 x_OTHDIAG2 x_OTHDIAG3 x_OTHDIAG4 x_OTHDIAG5 x_OTHDIAG6 x_OTHDIAG7 x_OTHDIAG8 x_OTHDIAG9
+
+replace Open_PR = 0 if Open_PR == .
+replace Lap_PR = 0 if Lap_PR== .
+replace Robotic_PR = 0 if Robotic_PR == .
+
+tab Lap_Rec 
+tab Open_Rec 
+tab Robotic_Rec 
+
+tab Open_PR Open_Rec 
+tab Lap_PR Lap_Rec 
+tab Robotic_PR Robotic_Rec 
+
+drop if Lap_PR == 0 & Open_PR == 0
+
+replace Open_PR = 0 if Robotic_PR == 1 & Lap_PR == 0
+replace Lap_PR = 0 if Robotic_PR == 1 & Open_PR == 0
+
+replace Open_Rec = . if Open_PR == 0 & Robotic_PR == 1
+replace Lap_Rec = . if Lap_PR == 0 & Robotic_PR == 1
+
+gen CCIcat = . 
+replace CCIcat = 0 if  CCI == 0
+replace CCIcat = 1 if  CCI == 1
+replace CCIcat = 2 if  CCI >= 2 
+
+tab Open_PR
+tab Lap_PR
+tab Robotic_PR   
+
+codebook MCARE_NBR
+
+gen VISITS_s = string(VISITS)
+mdesc VISITS VISITS_s
+drop VISITS
+rename VISITS_s VISITS
+
+save "file path",replace

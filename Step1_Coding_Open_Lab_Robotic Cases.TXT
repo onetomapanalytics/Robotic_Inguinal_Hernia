@@ -1,0 +1,69 @@
+
+Step 2- Coding for the Open Laproscopic and Robotic Procedures(following code is for the year 2018 data file)
+
+use "file path"
+
+codebook FACLNBR MCARE_NBR
+
+gen Lap_PR = .
+
+foreach v of var OTHCPT1 {
+ 
+ replace Lap_PR = 1 if `v'=="49650" | `v'=="49651" 
+ }
+
+ 
+gen Lap_Rec= . 
+
+replace Lap_Rec= 0 if OTHCPT1 == "49650" & Lap_PR == 1  
+replace Lap_Rec= 1 if OTHCPT1 == "49651" & Lap_PR == 1  
+
+tab Lap_Rec
+tab Lap_PR
+
+//OPEN
+gen Open_PR = .
+foreach v of var OTHCPT1{
+ 
+ replace Open_PR = 1 if `v' == "49505" | `v' == "49507" | `v' == "49520" | `v' == "49521" | `v' == "49525"  
+
+ }
+
+
+ **********************
+gen Open_Rec= . 
+
+replace Open_Rec= 0 if OTHCPT1 == "49505" & Open_PR == 1  
+replace Open_Rec= 0 if OTHCPT1 == "49507" & Open_PR == 1  
+replace Open_Rec= 0 if OTHCPT1 == "49525" & Open_PR == 1  
+replace Open_Rec= 1 if OTHCPT1 == "49520" & Open_PR == 1  
+replace Open_Rec= 1 if OTHCPT1 == "49521" & Open_PR == 1  
+  
+
+tab Open_Rec
+tab Open_PR
+
+ //ROBOTIC
+
+gen Robotic_PR = .
+ foreach v of var OTHCPT1-OTHCPT30 {
+ 
+ replace Robotic_PR = 1 if `v' == "S2900"  & Open_PR == 1| `v' == "S2900" & Lap_PR == 1 
+ }
+
+gen Robotic_Rec= . 
+foreach var of varlist OTHCPT1-OTHCPT30{
+replace Robotic_Rec= 0 if `var' == "49650" & Robotic_PR == 1 | `var' == "49505" & Robotic_PR == 1 | `var' == "49507" & Robotic_PR == 1 | `var' == "49525" & Robotic_PR == 1 
+}
+replace Robotic_Rec = 1 if Robotic_Rec == . & Robotic_PR == 1
+tab Robotic_Rec
+
+tab Robotic_PR
+
+
+tab Robotic_PR
+tab Open_PR
+tab Lap_PR
+
+
+save "file path",replace

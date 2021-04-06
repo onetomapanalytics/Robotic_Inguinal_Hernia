@@ -1,0 +1,48 @@
+
+Step 3- Further Cleaning the data, addint totals for open, laproscopic and robtoic procedures. (following code is for the year 2018 data file)
+In this step the individual yearly files were also stacked and a master file for 2010-2018 was created. 
+
+use "file path"
+
+codebook MCARE_NBR
+
+sort MCARE_NBR 
+* the first obs is always an index
+by MCARE_NBR : gen idx = _n == 1
+
+by MCARE_NBR : gen idx2 = _n 
+
+replace idx2 = 999999 if idx == 1 & idx2 ==1 
+
+* ADDING THE TOTAL CHARGES FOR READMISSIONS
+bysort MCARE_NBR : egen Total_Open = sum(Open_PR) 
+
+* ADDING THE TOTAL CHARGES FOR READMISSIONS
+bysort MCARE_NBR : egen Total_Lap = sum(Lap_PR) 
+
+* ADDING THE TOTAL CHARGES FOR READMISSIONS
+bysort MCARE_NBR : egen Total_Rob = sum(Robotic_PR) 
+
+* ADDING THE TOTAL CHARGES FOR READMISSIONS
+bysort MCARE_NBR : egen Total_Hernia = sum(Open_PR+Lap_PR+Robotic_PR) 
+
+order MCARE_NBR idx Total_Open Total_Lap Total_Rob Total_Hernia YEAR, first
+
+tab Open_PR Robotic_PR
+replace Open_PR = 0 if Open_PR == 1 & Robotic_PR == 1
+
+tab Lap_PR Robotic_PR
+replace Lap_PR = 0 if Lap_PR == 1 & Robotic_PR == 1
+
+tab Open_PR Lap_PR
+replace Open_PR = 0 if Lap_PR == 0 & Robotic_PR == 1
+
+tab Open_PR
+tab Lap_PR
+tab Robotic_PR
+
+tab Open_Rec
+tab Lap_Rec 
+tab Robotic_Rec
+
+save "file path",replace

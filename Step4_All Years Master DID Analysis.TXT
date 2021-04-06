@@ -1,0 +1,74 @@
+
+Step 4- Coding to highihght the robotoic versus non robotic hospitals based on the medicare provider ID. 
+
+use "file path"
+
+keep if IDX == 1
+
+*bysort MCARE_NBR YEAR : gen Rob = 1 if Tot_Rob != 0 & IDX == 1
+*bysort MCARE_NBR YEAR : replace Rob = 1 if Rob == 1 & IDX == 1
+
+*drop idx_rob
+
+* the first obs is always an index
+*by MCARE_NBR : gen IDX = _n == 1
+*by MCARE_NBR : gen IDX2 = _n 
+
+*replace IDX2 = 999999 if IDX == 1 & IDX2==1 
+
+by MCARE_NBR : gen idx_rob = 1 if (Tot_Rob !=0 & IDX ==1)  
+
+foreach v of var idx_rob{
+replace idx_rob = 0 if `v'[_n+1] == 1 & MCARE_NBR[_n+1] == MCARE_NBR[_n-1] 
+}
+*keep on running until 0 changes
+foreach v of var idx_rob{
+replace idx_rob = 0 if `v'[_n+1] == 0 & MCARE_NBR[_n+1] == MCARE_NBR[_n-1] 
+}
+foreach v of var idx_rob{
+replace idx_rob = 0 if `v'[_n+1] == 0 & MCARE_NBR[_n+1] == MCARE_NBR[_n+1] 
+}
+*****************************************
+*some manual work here add 1 to idx_rob for robotic hospitals with no tobotic cases in latest years
+*Switch to editor mode 
+****************************************
+
+
+foreach v of var idx_rob{
+replace idx_rob = 1 if `v'[_n+1] == . & MCARE_NBR[_n+1] == MCARE_NBR[_n-1] 
+}
+* the first obs is always an index
+by MCARE_NBR : gen IdX = _n == 1
+by MCARE_NBR : gen Idx2 = _n 
+
+by MCARE_NBR : gen idx_rob2 = 1 if (Tot_Rob !=0 & IdX ==0)  
+
+*by MCARE_NBR YEAR : replace idx_rob2 = 0 if (Tot_Rob ==0 & Idx2 >1)  
+
+replace idx_rob2 = idx_rob if idx_rob2 == .
+
+
+gen Robot = 1 if idx_rob != . 
+replace Robot = 0 if idx_rob == . 
+
+tab Robot
+
+
+codebook MCARE_NBR if Robot == 1
+codebook MCARE_NBR if Robot == 0
+
+
+*********************************************************************************************************
+
+codebook MCARE_NBR if Robot == 1
+codebook MCARE_NBR if Robot == 0
+
+gen time = 1 if idx_rob2 == 1 & Robot == 1
+replace time = 0 if time == .
+
+gen did = (time*Robot)
+
+*Running a differnce in differnce analysis which will give Incidence Rate Ratios with 95% Confidence Intervals
+
+poisson  Tot_Hernia did time Robot , irr
+

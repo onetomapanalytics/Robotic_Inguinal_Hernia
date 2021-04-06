@@ -1,0 +1,29 @@
+
+Step 1- Basic cleaning and data subset(following code is for the year 2018 data file)
+
+use "file path"
+
+codebook MCARE_NBR 
+
+drop if AGE<16
+drop if AGE==.
+
+replace PRINDIAG = subinstr(PRINDIAG, ".", "",.)
+
+*replace PRINPROC = subinstr(PRINPROC, ".", "",.)
+
+order  OTHCPT1 OTHCPT2 OTHCPT3 OTHCPT4 OTHCPT5 OTHCPT6 OTHCPT7 OTHCPT8 OTHCPT9 OTHCPT10 OTHCPT11 OTHCPT12 OTHCPT13 OTHCPT14 OTHCPT15 OTHCPT16 OTHCPT17 OTHCPT18 OTHCPT19 OTHCPT20 OTHCPT21 OTHCPT22 OTHCPT23 OTHCPT24 OTHCPT25 OTHCPT26 OTHCPT27 OTHCPT28 OTHCPT29 OTHCPT30 PRINDIAG OTHDIAG1 OTHDIAG2 OTHDIAG3 OTHDIAG4 OTHDIAG5 OTHDIAG6 OTHDIAG7 OTHDIAG8 OTHDIAG9 , last 
+	
+isid SYS_RECID, sort
+
+foreach v of var OTHCPT1- OTHDIAG9{
+
+gen x_`v' = 1 if `v' == "49505" | `v' == "49507" | `v' == "49520" | `v' == "49521" | `v' == "49525" | `v'=="49650" | `v'=="49651" | `v' == "S2900" | `v' == "1711" | `v' == "1712" | `v' == "1713" | `v' == "1721" | `v' == "1722" | `v' == "1723" | `v' == "1724" | `v' == "5301" | `v' == "5302" | `v' == "5303" | `v' == "5304" | `v' == "5311" | `v' == "5312" | `v' == "5313" | `v'=="5314" | `v'=="5315" | `v'=="5316" | `v'=="1741" |`v'=="1742" |`v'=="1749" | `v' == "0YU547Z" | `v' == "0YU54JZ" | `v' == "0YU54KZ" | `v' == "0YU647Z" | `v' == "0YU64JZ" | `v' == "0YU64KZ" | `v' == "0YQ53ZZ" | `v' == "0YQ54ZZ" | `v' == "0YQ63ZZ" | `v' == "0YQ64ZZ"| `v' == "0YUA47Z" | `v' == "0YUA4JZ" | `v' == "0YUA4KZ" | `v' == "0YQA3ZZ" | `v' == "0YQA4ZZ" | `v' == "0YQ50ZZ" | `v' == "0YQ60ZZ" | `v' == "0YU507Z" | `v' == "0YU50JZ" | `v' == "0YU50KZ" | `v' == "0YU607Z" | `v' == "0YU60JZ" | `v' == "0YU60KZ" | `v' == "0YQA0ZZ" | `v' == "0YUA07Z" | `v' == "0YUA0JZ" | `v' == "0YUA0KZ" | `v' == "8E0W0CZ" | `v' == "8E0W4CZ" | `v' == "8E0W7CZ" | `v' == "8E0WXCZ" 
+
+	}
+	
+by SYS_RECID:  gen keepvar = 1 if x_OTHCPT1==1 |  x_OTHCPT2==1 |  x_OTHCPT3==1 |  x_OTHCPT4==1 |  x_OTHCPT5==1 |  x_OTHCPT6==1 |  x_OTHCPT7==1 |  x_OTHCPT8==1 |  x_OTHCPT9==1 |  x_OTHCPT10==1 |  x_OTHCPT11==1 |  x_OTHCPT12==1 |  x_OTHCPT13==1 |  x_OTHCPT14==1 |  x_OTHCPT15==1 |  x_OTHCPT16==1 |  x_OTHCPT17==1 |  x_OTHCPT18==1 |  x_OTHCPT19==1 |  x_OTHCPT20==1 |  x_OTHCPT21==1 |  x_OTHCPT22==1 |  x_OTHCPT23==1 |  x_OTHCPT24==1 |  x_OTHCPT25==1 |  x_OTHCPT26==1 |  x_OTHCPT27==1 |  x_OTHCPT28==1 |  x_OTHCPT29==1 |  x_OTHCPT30==1 |  x_PRINDIAG==1 |  x_OTHDIAG1==1 |  x_OTHDIAG2==1 |  x_OTHDIAG3==1 |  x_OTHDIAG4==1 |  x_OTHDIAG5==1 |  x_OTHDIAG6==1 |  x_OTHDIAG7==1 |  x_OTHDIAG8==1 |  x_OTHDIAG9 == 1
+
+drop if keepvar ==.	
+
+save "file path"
